@@ -1,0 +1,150 @@
+# Teletubby code mode activated
+
+import mysql.connector
+
+class mysql_comands:
+    def __init__(self, user="root", password="12345678"):
+        """
+        Initializes a MySQL connection and cursor.
+
+        Parameters:
+            user (str): MySQL username.
+            password (str): MySQL password.
+        """
+        self.mydb = mysql.connector.connect(
+            host="localhost", user=user, password=password
+        )
+        self.mycursor = self.mydb.cursor(buffered=True)  # Set buffered=True to fetch all rows from server
+        self.mycursor.execute("SHOW DATABASES")
+    def set_database(self, database_name):
+        """
+        Sets the active database to the specified database name.
+
+        Parameters:
+            database_name (str): The name of the database to set.
+
+        Returns:
+            None
+        """
+        self.mydb.database = database_name
+    def create_database(self, database_name):
+        """
+        Creates a new database in MySQL.
+
+        Parameters:
+            database_name (str): The name of the database to be created.
+
+        Returns:
+            None
+        """
+        self.mycursor.execute(f"CREATE DATABASE {database_name}")
+        print(f"Database '{database_name}' created successfully!")
+        self.mydb.commit()  # Commit after database creation
+
+        # Fetch all remaining results from the cursor
+        for result in self.mycursor.stored_results():
+            result.fetchall()
+    def create_table(self, table_name, columns):
+        """
+        Creates a table in the MySQL database with the given table name and columns.
+
+        Parameters:
+            table_name (str): The name of the table to be created.
+            columns (dict): A dictionary mapping column names to their data types.
+
+        Returns:
+            None
+        """
+        columns_with_types = []
+        for col, dtype in columns.items():
+            if dtype.lower() == "id":
+                columns_with_types.append(f"{col} INT AUTO_INCREMENT PRIMARY KEY")
+            else:
+                columns_with_types.append(f"{col} {dtype}")
+        create_table_query = f"CREATE TABLE {table_name} ({', '.join(columns_with_types)});"
+
+        # Execute the query
+        print(create_table_query)
+        self.mycursor.execute(create_table_query)
+
+        # Fetch all remaining results from the cursor
+        for result in self.mycursor.stored_results():
+            result.fetchall()
+
+        print(f"Table '{table_name}' created successfully!")
+    def insert_into_table(self, table_name, data):
+        """
+        Insert data into a MySQL table.
+
+        Parameters:
+            table_name (str): Name of the table to insert data into.
+            data (dict): Dictionary of column names and their corresponding values.
+
+        Returns:
+            None
+        """
+        # Construct the INSERT INTO query
+        columns = ", ".join(data.keys())
+        values_placeholder = ", ".join(["%s"] * len(data))
+        insert_query = f"INSERT INTO {table_name} ({columns}) VALUES ({values_placeholder})"
+
+        # Execute the query
+        self.mycursor.execute(insert_query, list(data.values()))
+        self.mydb.commit()
+
+        # Fetch all remaining results from the cursor
+        for result in self.mycursor.stored_results():
+            result.fetchall()
+
+        print(f"Data inserted into '{table_name}' successfully!")
+    def check_and_get_item(self, table_name, column_name, search_value):
+        """
+        Checks if an item exists in a specified table by searching for a specific column and value.
+
+        Args:
+            table_name (str): The name of the table to search in.
+            column_name (str): The column to search for the specified value.
+            search_value (any): The value to search for in the specified column.
+
+        Returns:
+            tuple or None: If the item is found, returns a tuple representing the row. If not found, returns None.
+        """
+        # Create the query
+        query = f"SELECT * FROM {table_name} WHERE {column_name} = %s"
+        
+        # Execute the query
+        self.mycursor.execute(query, (search_value,))
+        
+        # Fetch the result
+        result = self.mycursor.fetchone()
+        
+        if result:
+            return result  # Return the result if found
+        else:
+            return None  # Return None if not found
+    def edit_item(self, table_name, column_name, new_value, search_column, search_value):
+        """
+        A function to edit an item in a specified table by updating a specific column with a new value based on a search column and value.
+
+        Parameters:
+            table_name (str): The name of the table to edit.
+            column_name (str): The column to update with the new value.
+            new_value (any): The new value to be set in the specified column.
+            search_column (str): The column to search for the specified value.
+            search_value (any): The value to search for in the search column.
+
+        Returns:
+            bool: True if the update was successful, False otherwise.
+        """
+        query = f"UPDATE {table_name} SET {column_name} = %s WHERE {search_column} = %s"
+        
+        # Execute the query
+        self.mycursor.execute(query, (new_value, search_value))
+        
+        # Commit the changes
+        self.mydb.commit()
+
+        if self.mycursor.rowcount > 0:
+            return True  # Return True if the update was successful
+        else:
+            return False  # Return False if no rows were updated

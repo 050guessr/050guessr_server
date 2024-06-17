@@ -1,23 +1,11 @@
-from flask import Flask
-
-app = Flask(__name__)
-score = 0
-HI_score_setter = ""
-@app.route('/sla_score_op/<spelernaam>/<score1>')
-def write(spelernaam, score1):
-    global HI_score_setter
-    global score
-    if int(score) < int(score1) and not int(score1) > 10000 :
-        HI_score_setter = spelernaam
-        score = score1
-    return score
-
-@app.route('/get_HI_score/')
-def get_HI_score():
-    global HI_score_setter
-    global score
-    return str(score) +" door "+ str(HI_score_setter)
-
-if __name__ == '__main__':
-    app.run(debug=True)
-
+from mysql_comands import *
+import flask
+app = flask.Flask(__name__)
+database = mysql_comands()
+#database.create_database("main")
+database.set_database("main")
+#database.create_table("users", {"id": "INT AUTO_INCREMENT PRIMARY KEY", "username": "VARCHAR(255)", "password": "VARCHAR(255)"})
+database.insert_into_table("users", {"username": "admin", "password": "admin"})
+if database.check_and_get_item("users", "username", "admin"):
+  print(database.check_and_get_item("users", "username", "admin"))
+  database.edit_item("users", "password", input("Enter new password: "), "username", "admin")
