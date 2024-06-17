@@ -2,6 +2,7 @@
 
 import mysql.connector
 
+
 class mysql_comands:
     def __init__(self, user="root", password="12345678"):
         """
@@ -14,8 +15,11 @@ class mysql_comands:
         self.mydb = mysql.connector.connect(
             host="localhost", user=user, password=password
         )
-        self.mycursor = self.mydb.cursor(buffered=True)  # Set buffered=True to fetch all rows from server
+        self.mycursor = self.mydb.cursor(
+            buffered=True
+        )  # Set buffered=True to fetch all rows from server
         self.mycursor.execute("SHOW DATABASES")
+
     def set_database(self, database_name):
         """
         Sets the active database to the specified database name.
@@ -27,6 +31,7 @@ class mysql_comands:
             None
         """
         self.mydb.database = database_name
+
     def create_database(self, database_name):
         """
         Creates a new database in MySQL.
@@ -44,6 +49,7 @@ class mysql_comands:
         # Fetch all remaining results from the cursor
         for result in self.mycursor.stored_results():
             result.fetchall()
+
     def create_table(self, table_name, columns):
         """
         Creates a table in the MySQL database with the given table name and columns.
@@ -61,7 +67,9 @@ class mysql_comands:
                 columns_with_types.append(f"{col} INT AUTO_INCREMENT PRIMARY KEY")
             else:
                 columns_with_types.append(f"{col} {dtype}")
-        create_table_query = f"CREATE TABLE {table_name} ({', '.join(columns_with_types)});"
+        create_table_query = (
+            f"CREATE TABLE {table_name} ({', '.join(columns_with_types)});"
+        )
 
         # Execute the query
         print(create_table_query)
@@ -72,6 +80,7 @@ class mysql_comands:
             result.fetchall()
 
         print(f"Table '{table_name}' created successfully!")
+
     def insert_into_table(self, table_name, data):
         """
         Insert data into a MySQL table.
@@ -86,7 +95,9 @@ class mysql_comands:
         # Construct the INSERT INTO query
         columns = ", ".join(data.keys())
         values_placeholder = ", ".join(["%s"] * len(data))
-        insert_query = f"INSERT INTO {table_name} ({columns}) VALUES ({values_placeholder})"
+        insert_query = (
+            f"INSERT INTO {table_name} ({columns}) VALUES ({values_placeholder})"
+        )
 
         # Execute the query
         self.mycursor.execute(insert_query, list(data.values()))
@@ -97,6 +108,7 @@ class mysql_comands:
             result.fetchall()
 
         print(f"Data inserted into '{table_name}' successfully!")
+
     def check_and_get_item(self, table_name, column_name, search_value):
         """
         Checks if an item exists in a specified table by searching for a specific column and value.
@@ -111,18 +123,21 @@ class mysql_comands:
         """
         # Create the query
         query = f"SELECT * FROM {table_name} WHERE {column_name} = %s"
-        
+
         # Execute the query
         self.mycursor.execute(query, (search_value,))
-        
+
         # Fetch the result
         result = self.mycursor.fetchone()
-        
+
         if result:
             return result  # Return the result if found
         else:
             return None  # Return None if not found
-    def edit_item(self, table_name, column_name, new_value, search_column, search_value):
+
+    def edit_item(
+        self, table_name, column_name, new_value, search_column, search_value
+    ):
         """
         A function to edit an item in a specified table by updating a specific column with a new value based on a search column and value.
 
@@ -137,10 +152,10 @@ class mysql_comands:
             bool: True if the update was successful, False otherwise.
         """
         query = f"UPDATE {table_name} SET {column_name} = %s WHERE {search_column} = %s"
-        
+
         # Execute the query
         self.mycursor.execute(query, (new_value, search_value))
-        
+
         # Commit the changes
         self.mydb.commit()
 
