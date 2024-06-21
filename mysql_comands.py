@@ -109,31 +109,32 @@ class mysql_comands:
 
         print(f"Data inserted into '{table_name}' successfully!")
 
-    def check_and_get_item(self, table_name, column_name, search_value):
-        """
-        Checks if an item exists in a specified table by searching for a specific column and value.
 
-        Args:
+    def get_item(self, table_name, column_name, search_value):
+        """
+        A function to find an item in a specified table based on a search column and value.
+
+        Parameters:
             table_name (str): The name of the table to search in.
-            column_name (str): The column to search for the specified value.
+            column_name (str): The column to search in.
             search_value (any): The value to search for in the specified column.
 
         Returns:
-            tuple or None: If the item is found, returns a tuple representing the row. If not found, returns None.
+            bool: True if the item is found, False otherwise.
         """
-        # Create the query
+        # Construct the SQL query to select all rows from the table
+        # where the specified column matches the search value
         query = f"SELECT * FROM {table_name} WHERE {column_name} = %s"
 
-        # Execute the query
+        # Execute the query with the search value as a parameter
         self.mycursor.execute(query, (search_value,))
 
-        # Fetch the result
+        # Fetch the first row that matches the search criteria
+        # If no rows match, None is returned
         result = self.mycursor.fetchone()
 
-        if result:
-            return result  # Return the result if found
-        else:
-            return None  # Return None if not found
+        return result
+
 
     def edit_item(
         self, table_name, column_name, new_value, search_column, search_value
