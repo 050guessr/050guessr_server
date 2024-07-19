@@ -2,10 +2,10 @@ from mysql_comands import *
 import flask
 import base64
 
+
 app = flask.Flask(__name__)
 pastalock = False
-database = mysql_comands()
-
+database = mysql_comands(password="siemsiem")
 
 def encode_to_base64(input_string):
     return base64.b64encode(input_string.encode("utf-8"))
@@ -15,13 +15,7 @@ def decode_from_base64(input_string):
     return base64.b64decode(input_string).decode("utf-8")
 
 
-def new_database(naam):
-    global pastalock
-    if pastalock:
-        print(pastalock)
-        return "locked"
-    database.create_database(naam)
-    return "gemaakt"
+
 
 
 def set_database(naam):
@@ -73,16 +67,39 @@ def maak_acount(username, password):
 def login(username, password):
     if database.get_item("users", "username", username):
         if database.get_item("users", "password", password):
-            return base64.b64encode(encode_to_base64(f"{username}And{password}"))
+            return encode_to_base64(f"{username}And{password}")
         else:
             return "verkeerd wachtwoord"
     else:
         return "gebruiker bestaat niet"
 
+@app.route("/get_score/<username>")
+def get_score(username):
+    return str(database.get_item("users", "username", username)[3])
+
+@app.route("/leaderboard")
+def get_leaderboard():
+    """
+    Retrieves the leaderboard sorted by user scores in descending order,
+    excluding the user_key and password fields.
+
+    Returns:
+        json: A JSON response containing the sorted leaderboard without user_key and password fields.
+    """
+    leaderboard = database.get_all_items_sorted("users", "user_score", descending=True)
+    
+    # Exclude 'user_key' and 'password' fields from the leaderboard data
+    filtered_leaderboard = [
+        {key: value for key, value in user.items() if key not in ["user_key", "password"]}
+        for user in leaderboard
+    ]
+    
+    return flask.jsonify(filtered_leaderboard)
+
 
 @app.route("/set_score/<key>/<score>")
 def set_score(key, score):
-    database.edit_item("users", "user_score", score, "user_key", key)
-
+    database.edit_item("users","user_score",int(score),"user_key",str(key))
+    return str(database.get_item("users", "user_key", key)[3])
 database.set_database("main")
 app.run(debug=True)

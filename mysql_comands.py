@@ -15,10 +15,10 @@ class mysql_comands:
         self.mydb = mysql.connector.connect(
             host="localhost", user=user, password=password
         )
-        self.mycursor = self.mydb.cursor(
+        self.cursor = self.mydb.cursor(
             buffered=True
         )  # Set buffered=True to fetch all rows from server
-        self.mycursor.execute("SHOW DATABASES")
+        self.cursor.execute("SHOW DATABASES")
 
     def set_database(self, database_name):
         """
@@ -42,12 +42,12 @@ class mysql_comands:
         Returns:
             None
         """
-        self.mycursor.execute(f"CREATE DATABASE {database_name}")
+        self.cursor.execute(f"CREATE DATABASE {database_name}")
         print(f"Database '{database_name}' created successfully!")
         self.mydb.commit()  # Commit after database creation
 
         # Fetch all remaining results from the cursor
-        for result in self.mycursor.stored_results():
+        for result in self.cursor.stored_results():
             result.fetchall()
 
     def create_table(self, table_name, columns):
@@ -73,10 +73,10 @@ class mysql_comands:
 
         # Execute the query
         print(create_table_query)
-        self.mycursor.execute(create_table_query)
+        self.cursor.execute(create_table_query)
 
         # Fetch all remaining results from the cursor
-        for result in self.mycursor.stored_results():
+        for result in self.cursor.stored_results():
             result.fetchall()
 
         print(f"Table '{table_name}' created successfully!")
@@ -100,11 +100,11 @@ class mysql_comands:
         )
 
         # Execute the query
-        self.mycursor.execute(insert_query, list(data.values()))
+        self.cursor.execute(insert_query, list(data.values()))
         self.mydb.commit()
 
         # Fetch all remaining results from the cursor
-        for result in self.mycursor.stored_results():
+        for result in self.cursor.stored_results():
             result.fetchall()
 
         print(f"Data inserted into '{table_name}' successfully!")
@@ -120,18 +120,18 @@ class mysql_comands:
             search_value (any): The value to search for in the specified column.
 
         Returns:
-            bool: True if the item is found, False otherwise.
+            ???
         """
         # Construct the SQL query to select all rows from the table
         # where the specified column matches the search value
         query = f"SELECT * FROM {table_name} WHERE {column_name} = %s"
 
         # Execute the query with the search value as a parameter
-        self.mycursor.execute(query, (search_value,))
+        self.cursor.execute(query, (search_value,))
 
         # Fetch the first row that matches the search criteria
         # If no rows match, None is returned
-        result = self.mycursor.fetchone()
+        result = self.cursor.fetchone()
 
         return result
 
@@ -155,12 +155,31 @@ class mysql_comands:
         query = f"UPDATE {table_name} SET {column_name} = %s WHERE {search_column} = %s"
 
         # Execute the query
-        self.mycursor.execute(query, (new_value, search_value))
+        self.cursor.execute(query, (new_value, search_value))
 
         # Commit the changes
         self.mydb.commit()
 
-        if self.mycursor.rowcount > 0:
+        if self.cursor.rowcount > 0:
             return True  # Return True if the update was successful
         else:
             return False  # Return False if no rows were updated
+        
+    def get_all_items_sorted(self, table_name, column_name, descending=False):
+        """
+        Retrieves all items from a specified table sorted by a specific column.
+
+        Args:
+            table_name (str): The name of the table.
+            column_name (str): The column to sort by.
+            descending (bool): Whether to sort in descending order. Default is False.
+
+        Returns:
+            list: A list of sorted items from the table.
+        """
+        order = "DESC" if descending else "ASC"
+        query = f"SELECT * FROM {table_name} ORDER BY {column_name} {order}"
+        self.cursor.execute(query)
+        columns = [column[0] for column in self.cursor.description]
+        return [dict(zip(columns, row)) for row in self.cursor.fetchall()]
+
