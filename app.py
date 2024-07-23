@@ -1,9 +1,13 @@
 from mysql_comands import *
 import flask
 import base64
+from flask_cors import CORS
+
 
 
 app = flask.Flask(__name__)
+CORS(app)
+
 pastalock = False
 database = mysql_comands(password="siemsiem")
 
