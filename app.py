@@ -71,7 +71,7 @@ def maak_acount(username, password):
 def login(username, password):
     if database.get_item("users", "username", username):
         if database.get_item("users", "password", password):
-            return encode_to_base64(f"{username}And{password}")
+            return encode_to_base64(f"{username}And{password}") #mysql_comands.get_item("users","key","username",username)
         else:
             return "verkeerd wachtwoord"
     else:
