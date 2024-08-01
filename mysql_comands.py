@@ -120,7 +120,7 @@ class mysql_comands:
             search_value (any): The value to search for in the specified column.
 
         Returns:
-            ???
+            the item
         """
         # Construct the SQL query to select all rows from the table
         # where the specified column matches the search value

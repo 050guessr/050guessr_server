@@ -3,10 +3,13 @@ import flask
 import base64
 from flask_cors import CORS
 
-
+#---------------------------------------------------------------------------------------#
+#                                  ☢️ ⚠️ BELANGERIJK ⚠️ ☢️                                  #
+#   het is NIET veilg dat de wachtwoorden in standaart text worden opgeslaagen fix ZSM  #
+#---------------------------------------------------------------------------------------#
 
 app = flask.Flask(__name__)
-CORS(app)
+CORS(app ,max_age=0)
 
 pastalock = False
 database = mysql_comands(password="siemsiem")
@@ -51,6 +54,10 @@ def create_default_table(naam):
 
 @app.route("/maak_acount/<username>/<password>")
 def maak_acount(username, password):
+#---------------------------------------------------------------------------------------#
+#                                  ☢️ ⚠️ BELANGERIJK ⚠️ ☢️                                  #
+#   het is NIET veilg dat de wachtwoorden in standaart text worden opgeslaagen fix ZSM  #
+#---------------------------------------------------------------------------------------#                             
     if database.get_item("users", "username", username):
         return "gebruiker bestaat al"
     else:
@@ -71,7 +78,7 @@ def maak_acount(username, password):
 def login(username, password):
     if database.get_item("users", "username", username):
         if database.get_item("users", "password", password):
-            return encode_to_base64(f"{username}And{password}") #mysql_comands.get_item("users","key","username",username)
+            return  database.get_item("users","username",username)[5]
         else:
             return "verkeerd wachtwoord"
     else:
@@ -105,5 +112,14 @@ def get_leaderboard():
 def set_score(key, score):
     database.edit_item("users","user_score",int(score),"user_key",str(key))
     return str(database.get_item("users", "user_key", key)[3])
+
+@app.route("/get_item/<column_name>/<search_value>/<row>")
+def get_item(column_name,search_value,row):
+    print(row)
+    if row == "2"  or row == "5":
+        return "ik ben zoo boos ike ga aleen naar de speeltuin"
+    return str(database.get_item("users",column_name,search_value)[int(row)])
+
+print()
 database.set_database("main")
 app.run(debug=True)
