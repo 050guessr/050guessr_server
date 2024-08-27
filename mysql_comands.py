@@ -2,7 +2,6 @@
 
 import mysql.connector
 
-
 class mysql_comands:
     def __init__(self, user="root", password="12345678"):
         """
