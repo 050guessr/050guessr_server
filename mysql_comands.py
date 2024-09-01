@@ -42,7 +42,6 @@ class mysql_comands:
             None
         """
         self.cursor.execute(f"CREATE DATABASE {database_name}")
-        print(f"Database '{database_name}' created successfully!")
         self.mydb.commit()  # Commit after database creation
 
         # Fetch all remaining results from the cursor
@@ -71,14 +70,12 @@ class mysql_comands:
         )
 
         # Execute the query
-        print(create_table_query)
         self.cursor.execute(create_table_query)
 
         # Fetch all remaining results from the cursor
         for result in self.cursor.stored_results():
             result.fetchall()
 
-        print(f"Table '{table_name}' created successfully!")
 
     def insert_into_table(self, table_name, data):
         """
