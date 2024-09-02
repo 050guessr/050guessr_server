@@ -3,8 +3,10 @@
 sudo apt update
 sudo apt install mysql-server
 sudo mysql_secure_installation utility
-sudo mysql UPDATE mysql.user SET authentication_string = PASSWORD('siemsiem') WHERE User = 'root';
-sudo mysql FLUSH PRIVILEGES;
+sudo mysql
+UPDATE mysql.user SET authentication_string = PASSWORD('siemsiem') WHERE User = 'root';
+FLUSH PRIVILEGES;
+exit
 sudo apt install python3
 sudo apt install python3-pip
 sudo apt install python3-venv
