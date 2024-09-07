@@ -12,7 +12,7 @@ class mysql_comands:
             password (str): MySQL password.
         """
         self.mydb = mysql.connector.connect(
-            host="localhost", user=user, password=password
+            host="10.184.19.117", user=user, password=password
         )
         self.cursor = self.mydb.cursor(
             buffered=True
