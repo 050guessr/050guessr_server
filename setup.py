@@ -5,7 +5,7 @@ from flask_cors import CORS
 database = mysql_comands(password="siemsiem", user="siem")
 print("ingelogd op mysql")
 try:
-    database.create_database("main")
+    database.create_database("siem$default")
     print("database aangemaakt")
 except:
     print("error: database bestaat al")

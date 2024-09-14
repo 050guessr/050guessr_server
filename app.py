@@ -198,17 +198,6 @@ def stopServer():
 
 
 print()
-try:
-    database.set_database("p460810_main")
-except:
-    database.create_database("main")
-    database.set_database("main")
-    create_default_table("users")
-
-try:
-    create_default_table("users")
-except:
-    pass
-
+database.set_database("siem$default")
 
 app.run(debug=True, port="5000")
