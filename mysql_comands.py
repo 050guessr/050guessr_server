@@ -3,7 +3,7 @@
 import mysql.connector
 
 class mysql_comands:
-    def __init__(self, user="root", password="12345678"):
+    def __init__(self, user="siem", password="siemsiem"):
         """
         Initializes a MySQL connection and cursor.
 
@@ -12,7 +12,7 @@ class mysql_comands:
             password (str): MySQL password.
         """
         self.mydb = mysql.connector.connect(
-            host="10.184.19.117", user=user, password=password
+            host="siem.mysql.pythonanywhere-services.com", user=user, password=password
         )
         self.cursor = self.mydb.cursor(
             buffered=True
