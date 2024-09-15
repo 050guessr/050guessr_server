@@ -143,7 +143,9 @@ def get_leaderboard():
 
 @app.route("/set_score/<key>/<score>")
 def set_score(key, score):
-    database.edit_item("users", "user_score", int(score), "user_key", str(key))
+    # check if new score is higher
+    if database.get_item("users", "user_key", key)[4] < int(score):
+        database.edit_item("users", "user_score", int(score), "user_key", str(key))
     return str(database.get_item("users", "user_key", key)[4])
 
 
