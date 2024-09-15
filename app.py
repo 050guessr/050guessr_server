@@ -14,7 +14,7 @@ app = flask.Flask(__name__)
 CORS(app)
 
 pastalock = False
-database = mysql_comands(password="siemsiem", user="siem")
+database = mysql_comands(password="siemsiem", user="root")
 
 
 def encode_to_base64(input_string):
@@ -198,6 +198,6 @@ def stopServer():
 
 
 print()
-database.set_database("siem$default")
+database.set_database("main")
 
 app.run(debug=True, port="5000")
