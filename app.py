@@ -199,6 +199,16 @@ def stopServer():
     return json.jsonify({"success": True, "message": "Server is shutting down..."})
 
 
+@app.errorhandler(500)
+def internal_error(error):
+    # Log the error (optional)
+    app.logger.error(f"Server Error: {error}")
+    
+    # Optionally, trigger an external command to restart the app
+    os.system('pm2 restart app')  # Restarts using pm2
+
+    return "Internal Server Error", 500
+
 print()
 database.set_database("main")
 
