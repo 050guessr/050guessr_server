@@ -1,5 +1,6 @@
 import sys
 import mail
+import keys
 import flask
 import base64
 import random
@@ -14,16 +15,14 @@ app = flask.Flask(__name__)
 CORS(app)
 
 pastalock = False
-database = mysql_comands()
+database = mysql_comands(password=keys.db_password, user="root")
 
 
 def encode_to_base64(input_string):
     return base64.b64encode(input_string.encode("utf-8"))
 
-
 def decode_from_base64(input_string):
     return base64.b64decode(input_string).decode("utf-8")
-
 
 def set_database(naam):
     global pastalock
@@ -31,7 +30,6 @@ def set_database(naam):
         return "locked"
     database.set_database(naam)
     return "gezet"
-
 
 def create_default_table(naam):
     global pastalock
@@ -51,7 +49,6 @@ def create_default_table(naam):
     )
     print(f"Table '{naam}' created successfully!")
     return "created"
-
 
 @app.route("/maak_acount_V2/<username>/<password>/<email>")
 def maak_acount_V2(username, password, email):
@@ -75,7 +72,6 @@ def maak_acount_V2(username, password, email):
         )
         return "account aangemaakt"
 
-
 @app.route("/maak_acount/<username>/<password>")
 def maak_acount(username, password):
 
@@ -98,7 +94,6 @@ def maak_acount(username, password):
         )
         return "account aangemaakt"
 
-
 @app.route("/login/<username>/<password>")
 def login(username, password):
     if database.get_item("users", "username", username):
@@ -111,11 +106,9 @@ def login(username, password):
     else:
         return "gebruiker bestaat niet"
 
-
 @app.route("/get_score/<username>")
 def get_score(username):
     return str(database.get_item("users", "username", username)[4])
-
 
 @app.route("/leaderboard")
 def get_leaderboard():
@@ -140,7 +133,6 @@ def get_leaderboard():
 
     return flask.jsonify(filtered_leaderboard)
 
-
 @app.route("/set_score/<key>/<score>")
 def set_score(key, score):
     # check if new score is higher
@@ -148,14 +140,12 @@ def set_score(key, score):
         database.edit_item("users", "user_score", int(score), "user_key", str(key))
     return str(database.get_item("users", "user_key", key)[4])
 
-
 @app.route("/get_item/<column_name>/<search_value>/<row>")
 def get_item(column_name, search_value, row):
     print(row)
     if row == "2" or row == "6" or row == "3":
         return "ik ben zoo boos ike ga aleen naar de speeltuin"
     return str(database.get_item("users", column_name, search_value)[int(row)])
-
 
 @app.route("/restore_acount/<email>")
 def restore_acount(email):
@@ -175,7 +165,6 @@ def restore_acount(email):
         mail.send_mail(email, random_string)
     return email
 
-
 @app.route("/set_password/<old_password>/<new_password>/<key>")
 def set_password(old_password, new_password, key):
     if password_module.PasswordUtils.verify_password(
@@ -192,12 +181,10 @@ def set_password(old_password, new_password, key):
     else:
         return "wrong password"
 
-
 @app.route("/stop", methods=["GET"])
 def stopServer():
     os.kill(os.getpid(), signal.SIGINT)
     return json.jsonify({"success": True, "message": "Server is shutting down..."})
-
 
 @app.errorhandler(500)
 def internal_error(error):
