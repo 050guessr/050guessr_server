@@ -136,7 +136,7 @@ def get_leaderboard():
 @app.route("/set_score/<key>/<score>")
 def set_score(key, score):
     # check if new score is higher
-    if (score > 10000):
+    if score > 10000:
         return "ik ben zoo boos ike ga aleen naar de speeltuin"
     if database.get_item("users", "user_key", key)[4] < int(score):
         database.edit_item("users", "user_score", int(score), "user_key", str(key))
