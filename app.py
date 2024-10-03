@@ -3,8 +3,8 @@ import mail
 import keys
 import flask
 import base64
-import random
 import string
+import random
 import password_module
 import json, os, signal
 from mysql_comands import *
@@ -136,9 +136,22 @@ def get_leaderboard():
 @app.route("/set_score/<key>/<score>")
 def set_score(key, score):
     # check if new score is higher
+    if (score > 10000):
+        return "ik ben zoo boos ike ga aleen naar de speeltuin"
     if database.get_item("users", "user_key", key)[4] < int(score):
         database.edit_item("users", "user_score", int(score), "user_key", str(key))
+    
     return str(database.get_item("users", "user_key", key)[4])
+
+
+@app.route("/verban/<key>")
+def verban(key):
+    # check if new score is higher
+    database.edit_item("users", "user_score", 0, "user_key", str(key))
+    database.edit_item("users", "password", "verbanen", "user_key", str(key))
+    database.edit_item("users", "user_score", "verbannen", "user_key", str(key))
+
+    return "doei doei"
 
 @app.route("/get_item/<column_name>/<search_value>/<row>")
 def get_item(column_name, search_value, row):
