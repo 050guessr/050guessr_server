@@ -149,7 +149,7 @@ def verban(key):
     # check if new score is higher
     database.edit_item("users", "user_score", 0, "user_key", str(key))
     database.edit_item("users", "password", "verbanen", "user_key", str(key))
-    database.edit_item("users", "user_score", "verbannen", "user_key", str(key))
+    database.edit_item("users", "user_key", "verbannen", "user_key", str(key))
 
     return "doei doei"
 
