@@ -148,6 +148,8 @@ class mysql_comands:
         Returns:
             bool: True if the update was successful, False otherwise.
         """
+
+        # Construct the SQL query to update the specified column
         query = f"UPDATE {table_name} SET {column_name} = %s WHERE {search_column} = %s"
 
         # Execute the query
@@ -160,7 +162,6 @@ class mysql_comands:
             return True  # Return True if the update was successful
         else:
             return False  # Return False if no rows were updated
-        
     def get_all_items_sorted(self, table_name, column_name, descending=False):
         """
         Retrieves all items from a specified table sorted by a specific column.
