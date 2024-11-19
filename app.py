@@ -5,7 +5,6 @@ import flask
 import base64
 import string
 import random
-import beveiliging
 import password_module
 import json, os, signal
 from mysql_comands import *
@@ -134,11 +133,8 @@ def get_leaderboard():
 
     return flask.jsonify(filtered_leaderboard)
 
-@app.route("/set_score/<key>/<score>/<applesapje_dan_maar>")
-def set_score(key, score, applesapje_dan_maar):
-    if not beveiliging.ontsleutel_en_vergelijken(applesapje_dan_maar, score):
-        verban(key)
-        return "ik ben zoo boos ike ga aleen naar de speeltuin"
+@app.route("/set_score/<key>/<score>")
+def set_score(key, score):
     # check if new score is higher
     if score > 10000:
         return "ik ben zoo boos ike ga aleen naar de speeltuin"
@@ -200,9 +196,8 @@ def set_password(old_password, new_password, key):
 
 @app.route("/stop", methods=["GET"])
 def stopServer():
-    pass
-    #os.kill(os.getpid(), signal.SIGINT)
-    #return json.jsonify({"success": True, "message": "Server is shutting down..."})
+    os.kill(os.getpid(), signal.SIGINT)
+    return json.jsonify({"success": True, "message": "Server is shutting down..."})
 
 @app.errorhandler(500)
 def internal_error(error):
