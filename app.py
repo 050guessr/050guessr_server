@@ -139,23 +139,27 @@ def set_score(key, score, pasta):
     try:
         score = int(score)
     except ValueError:
-        return "Ongeldige score, moet een getal zijn."
+        return "Ongeldige score, moet een getal zijn.", 400  # Bad Request
 
-    # Controleer of de score geldig is
     if score > 10000:
-        return "ik ben zoo boos ike ga aleen naar de speeltuin"
+        return "ik ben zoo boos ike ga aleen naar de speeltuin", 400
 
-    # Controleer pasta met ontsleuteling
     if not beveiliging.ontsleutel_en_vergelijken(pasta, str(score)):
-        return "ik ben zoo boos ike ga aleen naar de speeltuin"
+        return "ik ben zoo boos ike ga aleen naar de speeltuin", 400
 
-    # Haal huidige score op uit de database
-    huidige_score = database.get_item("users", "user_key", key)[4]
-    
-    if huidige_score < score:
-        database.edit_item("users", "user_score", score, "user_key", key)
+    try:
+        huidige_score = database.get_item("users", "user_key", key)
+        if not huidige_score:
+            return "Gebruiker niet gevonden.", 404  # Not Found
 
-    return str(huidige_score)
+        huidige_score = huidige_score[4]  # Zorg ervoor dat de index klopt
+        if huidige_score < score:
+            database.edit_item("users", "user_score", score, "user_key", key)
+
+        return str(huidige_score)
+    except Exception as e:
+        print(f"Databasefout: {e}")  # Schrijf fout in de logs
+        return "Serverfout, probeer later opnieuw.", 500  # Internal Server Error
 
 
 @app.route("/verban/<key>")
