@@ -5,6 +5,7 @@ import flask
 import base64
 import string
 import random
+import beveiliging
 import password_module
 import json, os, signal
 from mysql_comands import *
@@ -133,15 +134,28 @@ def get_leaderboard():
 
     return flask.jsonify(filtered_leaderboard)
 
-@app.route("/set_score/<key>/<score>")
-def set_score(key, score):
-    # check if new score is higher
+@app.route("/set_score/<key>/<score>/<pasta>")
+def set_score(key, score, pasta):
+    try:
+        score = int(score)
+    except ValueError:
+        return "Ongeldige score, moet een getal zijn."
+
+    # Controleer of de score geldig is
     if score > 10000:
         return "ik ben zoo boos ike ga aleen naar de speeltuin"
-    if database.get_item("users", "user_key", key)[4] < int(score):
-        database.edit_item("users", "user_score", int(score), "user_key", str(key))
+
+    # Controleer pasta met ontsleuteling
+    if not beveiliging.ontsleutel_en_vergelijken(pasta, str(score)):
+        return "ik ben zoo boos ike ga aleen naar de speeltuin"
+
+    # Haal huidige score op uit de database
+    huidige_score = database.get_item("users", "user_key", key)[4]
     
-    return str(database.get_item("users", "user_key", key)[4])
+    if huidige_score < score:
+        database.edit_item("users", "user_score", score, "user_key", key)
+
+    return str(huidige_score)
 
 
 @app.route("/verban/<key>")
