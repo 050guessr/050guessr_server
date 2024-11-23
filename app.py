@@ -91,6 +91,7 @@ def maak_acount(username, password):
                 "user_key": encode_to_base64(
                     f"{username}And{password_module.PasswordUtils.hash_password(password)}"
                 ),
+                "bage": "0",
             },
         )
         return "account aangemaakt"
@@ -211,6 +212,17 @@ def set_password(old_password, new_password, key):
         return "password updated"
     else:
         return "wrong password"
+    
+@app.route("/set_bage/<key>/<bage_num>")
+def set_bage(key, bage_num):
+    database.edit_item(
+        "users",
+        "bage",
+        bage_num,
+        "user_key",
+        key,
+    )
+    return "bage updated"
 
 @app.route("/stop", methods=["GET"])
 def stopServer():

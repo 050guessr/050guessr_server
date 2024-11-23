@@ -28,6 +28,7 @@ try:
             "user_score": "INT",
             "user_rank": "INT",
             "user_key": "VARCHAR(255)",
+            "bage": "INT",
         },
     )
     print("tabel aangemaakt")
