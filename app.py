@@ -166,9 +166,14 @@ def set_score(key, score, pasta):
 @app.route("/verban/<key>")
 def verban(key):
     # check if new score is higher
-    database.edit_item("users", "user_score", 0, "user_key", str(key))
-    database.edit_item("users", "password", "verbanen", "user_key", str(key))
-    database.edit_item("users", "user_key", "verbannen", "user_key", str(key))
+    # UPDATE ER ZIJN PROBLEEMEN MET DE AUTO VERBANNING
+    # UIT GEZET OP 22 december 2024
+
+    #database.edit_item("users", "user_score", 0, "user_key", str(key))
+    #database.edit_item("users", "password", "verbanen", "user_key", str(key))
+    #database.edit_item("users", "user_key", "verbannen", "user_key", str(key))
+
+    database.edit_item("users", "user_rank", 1, "user_key", str(key))
 
     return "doei doei"
 

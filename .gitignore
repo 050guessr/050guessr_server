@@ -2,3 +2,4 @@
 
 # Ignore the secrets file
 keys.py
+dockerfile
