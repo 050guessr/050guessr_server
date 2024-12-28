@@ -1,5 +1,7 @@
+import keys
 from mysql_comands import *
-import mysql_comands
-database = mysql_comands.mysql_comands(password="siemsiem")
+
+database = mysql_comands(password=keys.db_password, user="root")
 database.set_database("main")
-print(database.get_all_items_sorted("users","score",True))
+print("ingelogd op mysql")
+print(database.get_all_items_sorted("users", "user_score_moeilijk", descending=True))

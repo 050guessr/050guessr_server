@@ -326,4 +326,7 @@ def internal_error(error):
 print()
 database.set_database("main")
 
-app.run(debug=False, port="5000")
+
+from waitress import serve
+serve(app, host="0.0.0.0", port=5000)
+
