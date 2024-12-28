@@ -76,7 +76,6 @@ class mysql_comands:
         for result in self.cursor.stored_results():
             result.fetchall()
 
-
     def insert_into_table(self, table_name, data):
         """
         Insert data into a MySQL table.
@@ -105,7 +104,6 @@ class mysql_comands:
 
         print(f"Data inserted into '{table_name}' successfully!")
 
-
     def get_item(self, table_name, column_name, search_value):
         """
         A function to find an item in a specified table based on a search column and value.
@@ -130,7 +128,6 @@ class mysql_comands:
         result = self.cursor.fetchone()
 
         return result
-
 
     def edit_item(
         self, table_name, column_name, new_value, search_column, search_value
@@ -179,3 +176,26 @@ class mysql_comands:
         columns = [column[0] for column in self.cursor.description]
         return [dict(zip(columns, row)) for row in self.cursor.fetchall()]
 
+    def add_column(self, table_name, column_name, column_type):
+        """
+        Adds a new column to an existing table.
+
+        Parameters:
+            table_name (str): The name of the table to modify.
+            column_name (str): The name of the new column to add.
+            column_type (str): The data type of the new column.
+
+        Returns:
+            None
+        """
+        try:
+            # Construct the SQL query to add the new column
+            query = f"ALTER TABLE {table_name} ADD COLUMN {column_name} {column_type}"
+        
+            # Execute the query
+            self.cursor.execute(query)
+            self.mydb.commit()
+        
+            print(f"Column '{column_name}' added to table '{table_name}' successfully!")
+        except mysql.connector.Error as err:
+            print(f"Error: {err}")

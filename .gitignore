@@ -1,5 +1,7 @@
 # Ignore the virtual environment directory
-
+/venv
 # Ignore the secrets file
 keys.py
 dockerfile
+/__pycache__
+.DS_Store

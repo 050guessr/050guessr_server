@@ -18,7 +18,6 @@ CORS(app)
 pastalock = False
 database = mysql_comands(password=keys.db_password, user="root")
 
-
 def encode_to_base64(input_string):
     return base64.b64encode(input_string.encode("utf-8"))
 
@@ -46,6 +45,7 @@ def create_default_table(naam):
             "user_score": "INT",
             "user_rank": "INT",
             "user_key": "VARCHAR(255)",
+            "user_score_moeilijk": "INT",
         },
     )
     print(f"Table '{naam}' created successfully!")
@@ -135,6 +135,32 @@ def get_leaderboard():
 
     return flask.jsonify(filtered_leaderboard)
 
+
+@app.route("/leaderboardMoeilijk")
+def get_leaderboard_moeilijk():
+    """
+    Retrieves the leaderboard sorted by user scores in descending order,
+    excluding the user_key and password fields.
+
+    Returns:
+        json: A JSON response containing the sorted leaderboard without user_key and password fields.
+    """
+    leaderboard = database.get_all_items_sorted("users", "user_score_moeilijk", descending=True)
+
+    # Exclude 'user_key' and 'password' fields from the leaderboard data
+    filtered_leaderboard = [
+        {
+            key: value
+            for key, value in user.items()
+            if key not in ["user_key", "password", "email"]
+        }
+        for user in leaderboard
+    ]
+
+    return flask.jsonify(filtered_leaderboard)
+
+
+
 @app.route("/set_score/<key>/<score>/<pasta>")
 def set_score(key, score, pasta):
     try:
@@ -156,6 +182,33 @@ def set_score(key, score, pasta):
         huidige_score = huidige_score[4]  # Zorg ervoor dat de index klopt
         if huidige_score < score:
             database.edit_item("users", "user_score", score, "user_key", key)
+
+        return str(huidige_score)
+    except Exception as e:
+        print(f"Databasefout: {e}")  # Schrijf fout in de logs
+        return "Serverfout, probeer later opnieuw.", 500  # Internal Server Error
+
+@app.route("/set_score_moeilijk/<key>/<score>/<pasta>")
+def set_score_moeilijk(key, score, pasta):
+    try:
+        score = int(score)
+    except ValueError:
+        return "Ongeldige score, moet een getal zijn.", 400  # Bad Request
+
+    if score > 10000:
+        return "ik ben zoo boos ike ga aleen naar de speeltuin", 400
+
+    if not beveiliging.ontsleutel_en_vergelijken(pasta, str(score)):
+        return "ik ben zoo boos ike ga aleen naar de speeltuin", 400
+
+    try:
+        huidige_score = database.get_item("users", "user_key", key)
+        if not huidige_score:
+            return "Gebruiker niet gevonden.", 404  # Not Found
+
+        huidige_score = huidige_score[4]  # Zorg ervoor dat de index klopt
+        if huidige_score < score:
+            database.edit_item("users", "user_score_moeilijk", score, "user_key", key)
 
         return str(huidige_score)
     except Exception as e:
@@ -229,10 +282,36 @@ def set_bage(key, bage_num):
     )
     return "bage updated"
 
-@app.route("/stop", methods=["GET"])
-def stopServer():
-    os.kill(os.getpid(), signal.SIGINT)
-    return json.jsonify({"success": True, "message": "Server is shutting down..."})
+@app.route("/ADMIN/<admin_key>/update/<user_key>/<type>/<new_value>")
+def admin_update(admin_key, user_key, type, new_value):
+    if admin_key == keys.admin_key:
+        database.edit_item(
+            "users",
+            type,
+            new_value,
+            "user_key",
+            user_key,
+        )
+        return "updated"
+    else:
+        return "incorecte ADMIN key"
+    
+@app.route("/ADMIN/<admin_key>/delete/<user_key>")
+def admin_delete(admin_key, user_key):
+    if admin_key == keys.admin_key:
+        database.edit_item("users", "user_score", 0, "user_key", str(user_key))
+        database.edit_item("users", "password", "verbanen", "user_key", str(user_key))
+        database.edit_item("users", "user_key", "verbannen", "user_key", str(user_key))
+        return "deleted"
+    else:
+        return "incorecte ADMIN key"
+
+@app.route("/ADMIN/<admin_key>/unfilterd_list")
+def admin_unfilterd_list(admin_key):
+    if admin_key == keys.admin_key:
+        return database.get_all_items_sorted("users", "user_score", descending=True)
+    else:
+        return "incorecte ADMIN key"
 
 @app.errorhandler(500)
 def internal_error(error):
