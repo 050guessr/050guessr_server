@@ -16,7 +16,7 @@ app = flask.Flask(__name__)
 CORS(app)
 
 pastalock = False
-database = mysql_comands(password=keys.db_password, user="root")
+database = sqlite_commands(database_name="main.db")
 
 def encode_to_base64(input_string):
     return base64.b64encode(input_string.encode("utf-8"))
@@ -32,9 +32,6 @@ def set_database(naam):
     return "gezet"
 
 def create_default_table(naam):
-    global pastalock
-    if pastalock:
-        return "locked"
     database.create_table(
         naam,
         {
@@ -46,6 +43,7 @@ def create_default_table(naam):
             "user_rank": "INT",
             "user_key": "VARCHAR(255)",
             "user_score_moeilijk": "INT",
+            "bage": "INT",
         },
     )
     print(f"Table '{naam}' created successfully!")
@@ -69,29 +67,6 @@ def maak_acount_V2(username, password, email):
                 "user_score": 0,
                 "user_rank": 0,
                 "user_key": encode_to_base64(f"{username}q{password}"),
-            },
-        )
-        return "account aangemaakt"
-
-@app.route("/maak_acount/<username>/<password>")
-def maak_acount(username, password):
-
-    if database.get_item("users", "username", username):
-        return "gebruiker bestaat al"
-    else:
-
-        database.insert_into_table(
-            "users",
-            {
-                "username": username,
-                "password": password_module.PasswordUtils.hash_password(password),
-                "email": "NO-MAIL",
-                "user_score": 0,
-                "user_rank": 0,
-                "user_key": encode_to_base64(
-                    f"{username}And{password_module.PasswordUtils.hash_password(password)}"
-                ),
-                "bage": "0",
             },
         )
         return "account aangemaakt"
@@ -163,6 +138,7 @@ def get_leaderboard_moeilijk():
 
 @app.route("/set_score/<key>/<score>/<pasta>")
 def set_score(key, score, pasta):
+    print(f"set_score({key}, {score}, {pasta})")
     try:
         score = int(score)
     except ValueError:
@@ -230,12 +206,6 @@ def verban(key):
 
     return "doei doei"
 
-@app.route("/get_item/<column_name>/<search_value>/<row>")
-def get_item(column_name, search_value, row):
-    print(row)
-    if row == "2" or row == "6" or row == "3":
-        return "ik ben zoo boos ike ga aleen naar de speeltuin"
-    return str(database.get_item("users", column_name, search_value)[int(row)])
 
 @app.route("/restore_acount/<email>")
 def restore_acount(email):
@@ -323,9 +293,12 @@ def internal_error(error):
 
     return "Internal Server Error", 500
 
-print()
-database.set_database("main")
 
+print()
+try:
+    get_leaderboard()
+except:
+    create_default_table("users")
 
 from waitress import serve
 serve(app, host="0.0.0.0", port=5000)
