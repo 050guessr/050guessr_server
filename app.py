@@ -2,6 +2,7 @@ import sys
 import mail
 import keys
 import flask
+from flask import escape
 import base64
 import string
 import random
@@ -253,7 +254,7 @@ def restore_acount(email):
         )
 
         mail.send_mail(email, random_string)
-    return email
+    return escape(email)
 
 @app.route("/set_password/<old_password>/<new_password>/<key>")
 def set_password(old_password, new_password, key):
