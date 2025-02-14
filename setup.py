@@ -3,7 +3,7 @@ from mysql_comands import *
 from flask_cors import CORS
 
 
-database = sqlite_commands(password=keys.db_password, user="root")
+database = sqlite_commands()
 print("ingelogd op mysql")
 try:
     database.create_database("main")
