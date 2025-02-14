@@ -1,5 +1,5 @@
 #!/bin/bash
-
+clear
 SERVER="http://localhost:5000"
 TEST_USER="testuser_$RANDOM"
 TEST_PASS="testpass_$RANDOM"

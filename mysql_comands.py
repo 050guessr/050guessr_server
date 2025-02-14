@@ -2,9 +2,11 @@ import sqlite3
 from threading import Lock
 
 class sqlite_commands:
-    def __init__(self, database_name="teletubby.db", user=None, password=None):
+    def __init__(self, database_name="main.db", user=None, password=None):
         self.database_name = database_name
         self.lock = Lock()  # Add lock for thread safety
+        if user or password:
+            print("warning: using user and password is deprecated")
 
     def _execute(self, query, params=(), commit=True):
         """Generic execute method with connection handling"""
@@ -18,6 +20,7 @@ class sqlite_commands:
     def create_database(self, database_name):
         """Maintained for compatibility (SQLite auto-creates)"""
         print(f"Using SQLite database file: {database_name}")
+        print("warning: this function is deprecated")
 
     def set_database(self, database_name):
         """Switch database by changing the filename"""
@@ -42,6 +45,17 @@ class sqlite_commands:
         print(f"Data inserted into '{table_name}' successfully!")
 
     def get_item(self, table_name, column_name, search_value):
+        """
+        Retrieves a single row from a table based on a column value.
+        
+        Args:
+            table_name (str): The name of the table
+            column_name (str): The name of the column to search
+            search_value (str): The value to search for
+            
+        Returns:
+            dict: A single row as a dictionary
+        """
         query = f"SELECT * FROM {table_name} WHERE {column_name} = ?"
         cursor = self._execute(query, (search_value,), commit=False)
         return cursor.fetchone()
