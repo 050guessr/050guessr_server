@@ -1,9 +1,6 @@
 #!/bin/bash
 
 sudo apt update
-sudo apt install mysql-server
-sudo mysql_secure_installation utility
-sudo mysql --user=root -e "ALTER USER 'root'@'localhost' IDENTIFIED BY 'siemsiem'; FLUSH PRIVILEGES;"
 sudo apt install python3-full
 sudo apt install python3-pip
 sudo apt install python3-venv
