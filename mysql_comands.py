@@ -34,14 +34,14 @@ class sqlite_commands:
             else:
                 columns_with_types.append(f"{col} {dtype}")
         
-        query = "CREATE TABLE IF NOT EXISTS ? (?)"
-        self._execute(query, (table_name, ', '.join(columns_with_types)))
+        query = f"CREATE TABLE IF NOT EXISTS {table_name} ({', '.join(columns_with_types)})"
+        self._execute(query)
 
     def insert_into_table(self, table_name, data):
         columns = ", ".join(data.keys())
         values_placeholder = ", ".join(["?"] * len(data))
-        query = "INSERT INTO ? (?) VALUES (?)"
-        self._execute(query, (table_name, columns, values_placeholder, *data.values()))
+        query = f"INSERT INTO {table_name} ({columns}) VALUES ({values_placeholder})"
+        self._execute(query, list(data.values()))
         print(f"Data inserted into '{table_name}' successfully!")
 
     def get_item(self, table_name, column_name, search_value):
@@ -67,15 +67,15 @@ class sqlite_commands:
 
     def get_all_items_sorted(self, table_name, column_name, descending=False):
         order = "DESC" if descending else "ASC"
-        query = "SELECT * FROM ? ORDER BY ? ?"
-        cursor = self._execute(query, (table_name, column_name, order), commit=False)
+        query = f"SELECT * FROM {table_name} ORDER BY {column_name} {order}"
+        cursor = self._execute(query, commit=False)
         columns = [column[0] for column in cursor.description]
         return [dict(zip(columns, row)) for row in cursor.fetchall()]
 
     def add_column(self, table_name, column_name, column_type):
         try:
-            query = "ALTER TABLE ? ADD COLUMN ? ?"
-            self._execute(query, (table_name, column_name, column_type))
+            query = f"ALTER TABLE {table_name} ADD COLUMN {column_name} {column_type}"
+            self._execute(query)
             print(f"Column '{column_name}' added to table '{table_name}' successfully!")
         except sqlite3.Error as err:
             print(f"Error: {err}")
