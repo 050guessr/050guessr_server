@@ -5,3 +5,5 @@ keys.py
 dockerfile
 /__pycache__
 .DS_Store
+main
+main.db
