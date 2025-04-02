@@ -1,13 +1,11 @@
-import sys
 import mail
 import keys
 import flask
-import base64
 import string
 import random
 import beveiliging
 import password_module
-import json, os, signal
+import os
 from mysql_comands import *
 import time
 from flask_cors import CORS
@@ -17,15 +15,7 @@ app = flask.Flask(__name__)
 CORS(app)
 
 pastalock = False
-database = sqlite_commands(database_name="main.db")
-
-
-def encode_to_base64(input_string):
-    return base64.b64encode(input_string.encode("utf-8"))
-
-
-def decode_from_base64(input_string):
-    return base64.b64decode(input_string).decode("utf-8")
+database = sqlite_commands(database_name="db/main.db")
 
 
 def set_database(naam):
@@ -51,7 +41,6 @@ def create_default_table(naam):
             "bage": "INT",
         },
     )
-    print(f"Table '{naam}' created successfully!")
     return "created"
 
 
@@ -225,21 +214,10 @@ def set_password(old_password, new_password, key):
         return "wrong password"
 
 
-@app.route("/set_bage/<key>/<bage_num>")
-def set_bage(key, bage_num):
-    database.edit_item(
-        "users",
-        "bage",
-        bage_num,
-        "user_key",
-        key,
-    )
-    return "bage updated"
-
-
 @app.route("/ADMIN/<admin_key>/update/<user_key>/<type>/<new_value>")
 def admin_update(admin_key, user_key, type, new_value):
     if admin_key == keys.admin_key:
+        print("admin key was used")
         database.edit_item(
             "users",
             type,
@@ -249,40 +227,40 @@ def admin_update(admin_key, user_key, type, new_value):
         )
         return "updated"
     else:
+        print("!WARN! WRONG ADMIN KEY WAS USED")
         return "incorecte ADMIN key"
 
 
 @app.route("/ADMIN/<admin_key>/delete/<user_key>")
 def admin_delete(admin_key, user_key):
     if admin_key == keys.admin_key:
+        print("admin key was used")
         database.edit_item("users", "user_score", 0, "user_key", str(user_key))
         database.edit_item("users", "password", "verbanen", "user_key", str(user_key))
         database.edit_item("users", "user_key", "verbannen", "user_key", str(user_key))
         return "deleted"
     else:
+        print("!WARN! WRONG ADMIN KEY WAS USED")
         return "incorecte ADMIN key"
 
 
 @app.route("/ADMIN/<admin_key>/unfilterd_list")
 def admin_unfilterd_list(admin_key):
     if admin_key == keys.admin_key:
+        print("admin key was used")
         return database.get_all_items_sorted("users", "user_score", descending=True)
     else:
+        print("!WARN! WRONG ADMIN KEY WAS USED")
         return "incorecte ADMIN key"
 
 
 @app.errorhandler(500)
 def internal_error(error):
-    # Log the error (optional)
-    app.logger.error(f"Server Error: {error}")
-
-    # Optionally, trigger an external command to restart the app
-    os.system("pm2 restart app")  # Restarts using pm2
-
+    print(f"Internal Server Error, {error}")
+    os.system("docker compose restart")
     return "Internal Server Error", 500
 
 
-print()
 try:
     get_leaderboard()
 except:
@@ -291,4 +269,5 @@ except:
 from waitress import serve
 
 if __name__ == "__main__":
+    print("Starting server on port 5000")
     serve(app, host="0.0.0.0", port=5000, url_scheme="https")

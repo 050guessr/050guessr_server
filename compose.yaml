@@ -1,0 +1,13 @@
+services:
+  server:
+    container_name: SimpleLeaderboard
+    build:
+      context: .
+    ports:
+      - 5000:5000
+    volumes:
+      - db:/db:rw
+    user: root
+volumes:
+  db:
+    driver: local
